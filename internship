@@ -1,0 +1,30 @@
+def merge_images(cover_path, secret_path, output_path):
+    # Open and load pixel values of cover and secret images
+    cover_img = Image.open(cover_path)
+    cover_pixels = cover_img.load()
+
+    secret_img = Image.open(secret_path)
+    secret_pixels = secret_img.load()
+
+    # Iterate through each pixel
+    for i in range(cover_img.width):
+        for j in range(cover_img.height):
+            # Extract RGB components of cover pixel
+            cover_r, cover_g, cover_b = cover_pixels[i, j]
+
+            # Extract two most significant bits from secret image
+            secret_r, secret_g, secret_b = secret_pixels[i, j]
+            secret_r_bits = (secret_r >> 6) & 0x03
+            secret_g_bits = (secret_g >> 6) & 0x03
+            secret_b_bits = (secret_b >> 6) & 0x03
+
+            # Modify cover pixel values to include information from the secret image
+            merged_r = (cover_r & 0xFC) | secret_r_bits
+            merged_g = (cover_g & 0xFC) | secret_g_bits
+            merged_b = (cover_b & 0xFC) | secret_b_bits
+
+            # Update pixel in the merged image
+            cover_pixels[i, j] = (merged_r, merged_g, merged_b)
+
+    # Save the merged image
+    cover_img.save(output_path)
